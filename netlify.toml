@@ -6,13 +6,7 @@
   NODE_VERSION = "18"
   NPM_FLAGS = "--production=false"
 
-# SPA 라우팅 지원 - HTML5 History API를 위한 설정
-# assets, favicon, robots.txt 등 정적 파일들은 리다이렉트하지 않음
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  conditions = {Role = ["!file"]}
+
 
 # 30명 동시 접속을 위한 성능 최적화
 [[headers]]
