@@ -1,5 +1,4 @@
-import * as React from 'react';
-const { useState, useCallback } = React;
+import React, { useState, useCallback } from 'react';
 import { GameState, GameStage } from './types';
 import { WINGS } from './constants/gameData';
 import WelcomeScreen from './components/WelcomeScreen';

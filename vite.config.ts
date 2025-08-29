@@ -17,12 +17,18 @@ export default defineConfig(({ mode }) => {
         outDir: 'dist',
         assetsDir: 'assets',
         sourcemap: false,
-        minify: true
+        minify: true,
+        target: 'es2020',
+        rollupOptions: {
+          external: [],
+          output: {
+            manualChunks: undefined
+          }
+        }
       },
       esbuild: {
-        jsx: 'transform',
-        jsxFactory: 'React.createElement',
-        jsxFragment: 'React.Fragment'
+        jsx: 'automatic',
+        target: 'es2020'
       }
     };
 });
