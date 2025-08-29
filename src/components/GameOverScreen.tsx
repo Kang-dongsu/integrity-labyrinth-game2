@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { GameState } from '../types';
-import { submitScore } from '../services/firebaseService';
+import { GameState, LeaderboardEntry } from '../types';
+import { submitScore, getFirebaseStatus } from '../services/firebaseService';
 import Leaderboard from './Leaderboard';
 
 interface GameOverScreenProps {
@@ -19,6 +19,12 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRestart })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [firebaseConnected, setFirebaseConnected] = useState(false);
+
+  useEffect(() => {
+    const { isConnected } = getFirebaseStatus();
+    setFirebaseConnected(isConnected);
+  }, []);
 
   const finalTimeMs = (gameState.endTime ?? Date.now()) - gameState.startTime + gameState.timePenalty;
   const finalTimeSeconds = Math.floor(finalTimeMs / 1000);
@@ -26,6 +32,11 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRestart })
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
+    
+    if (!firebaseConnected) {
+      setError("온라인 순위표에 연결할 수 없습니다. 기록이 임시 저장됩니다.");
+    }
+
     try {
       await submitScore(gameState.playerName, finalTimeSeconds);
       setIsSubmitted(true);
@@ -53,7 +64,12 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRestart })
         <p className="text-sm text-gray-500 mt-2">(시간 페널티 포함)</p>
       </div>
       
-      {error && <p className="text-red-400 mb-4">{error}</p>}
+      {error && <p className="text-yellow-400 mb-4">{error}</p>}
+      {!firebaseConnected && !error && (
+        <p className="text-yellow-400 mb-4">
+          경고: 온라인 순위표에 연결되지 않았습니다. 기록은 임시로만 저장됩니다.
+        </p>
+      )}
 
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <button
