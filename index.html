@@ -5,14 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>청렴의 미궁 (The Labyrinth of Integrity)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
         font-family: 'Noto Sans KR', sans-serif;
-        background-color: #0f172a; /* bg-slate-900 */
+        background-color: #0f172a;
         background-image: radial-gradient(circle at 25px 25px, rgba(34, 211, 238, 0.05) 1px, transparent 0), radial-gradient(circle at 125px 125px, rgba(34, 211, 238, 0.05) 1px, transparent 0);
         background-size: 200px 200px;
       }
@@ -23,6 +23,7 @@
   </head>
   <body class="text-gray-200">
     <div id="root"></div>
+    <!-- Vite가 이 파일을 진입점으로 사용하여 모든 React/TSX 코드를 컴파일합니다 -->
     <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>

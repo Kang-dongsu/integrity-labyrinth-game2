@@ -1,23 +1,24 @@
 {
-  "name": "청렴의-미궁-(the-labyrinth-of-integrity)",
+  "name": "labyrinth-of-integrity",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "build": "vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "firebase": "^12.1.0"
+    "firebase": "^10.12.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
     "@types/node": "^22.14.0",
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0"
   }
 }
