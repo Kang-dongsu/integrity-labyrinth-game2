@@ -49,6 +49,7 @@ const Admin: React.FC<AdminProps> = ({ onExit }) => {
   };
 
   const handleFetchAllScores = async () => {
+    setActiveTab('scores');
     setIsLoading(true);
     setMessage('');
     setError('');
@@ -69,6 +70,7 @@ const Admin: React.FC<AdminProps> = ({ onExit }) => {
   };
 
   const handleFetchAllParticipants = async () => {
+    setActiveTab('participants');
     setIsLoading(true);
     setMessage('');
     setError('');
@@ -177,13 +179,13 @@ const Admin: React.FC<AdminProps> = ({ onExit }) => {
               {allScores && (
                 <div className="mt-8 text-left">
                   <h3 className="text-xl font-bold text-cyan-300 mb-4">
-                    {activeTab === 'scores' ? '전체 순위표' : '참가자 목록'} ({allScores.length}명)
+                    {activeTab === 'scores' ? '전체 순위표' : '전체 참가자'} ({allScores.length}명)
                   </h3>
                   <div className="overflow-auto max-h-96 bg-slate-900/50 rounded-lg">
                     <table className="w-full min-w-full">
                       <thead>
                         <tr className="border-b border-slate-600 bg-slate-800 sticky top-0">
-                          <th className="p-3 text-lg text-gray-300">순위</th>
+                          <th className="p-3 text-lg text-gray-300">연번</th>
                           <th className="p-3 text-lg text-gray-300">이름</th>
                           {activeTab === 'scores' && (
                             <th className="p-3 text-lg text-gray-300 text-right">기록</th>
