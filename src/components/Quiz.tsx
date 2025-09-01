@@ -4,7 +4,7 @@ import { Quiz as QuizType } from '../types';
 interface QuizProps {
   quiz: QuizType;
   onAnswer: (isCorrect: boolean) => void;
-  disabled: boolean;
+  disabled: boolean; // This will now only be true when the answer is correct
 }
 
 const CorrectIcon = () => (
@@ -19,42 +19,40 @@ const IncorrectIcon = () => (
     </svg>
 );
 
-
 const Quiz: React.FC<QuizProps> = ({ quiz, onAnswer, disabled }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [incorrectGuesses, setIncorrectGuesses] = useState<number[]>([]);
 
   const handleOptionClick = (index: number) => {
-    if (disabled) return;
-    setSelectedAnswer(index);
+    if (disabled || incorrectGuesses.includes(index)) {
+      return; // Do nothing if quiz is finished or this incorrect option was already clicked
+    }
+
     const isCorrect = index === quiz.correctAnswerIndex;
-    onAnswer(isCorrect);
+
+    if (isCorrect) {
+      setSelectedAnswer(index);
+      onAnswer(true);
+    } else {
+      onAnswer(false); // Trigger penalty
+      setIncorrectGuesses(prev => [...prev, index]);
+      alert('오답입니다. 문제를 다시 풀어주세요. +30초');
+    }
   };
 
   const getButtonState = (index: number) => {
-    if (!disabled) {
-      return { classes: "bg-slate-700 hover:bg-cyan-800", icon: null };
+    // If the quiz is disabled, it means the correct answer was selected.
+    if (disabled && index === selectedAnswer) {
+      return { classes: "bg-green-700 transform scale-105 ring-2 ring-green-400", icon: <CorrectIcon /> };
     }
 
-    const isCorrect = index === quiz.correctAnswerIndex;
-    const isSelected = index === selectedAnswer;
+    // If this option was an incorrect guess, mark it as red.
+    if (incorrectGuesses.includes(index)) {
+      return { classes: "bg-red-700 opacity-70", icon: <IncorrectIcon /> };
+    }
 
-    if (isSelected) {
-      if (isCorrect) {
-        // The user selected the correct answer.
-        return { classes: "bg-green-700 transform scale-105 ring-2 ring-green-400", icon: <CorrectIcon /> };
-      } else {
-        // The user selected an incorrect answer.
-        return { classes: "bg-red-700 transform scale-105 ring-2 ring-red-400", icon: <IncorrectIcon /> };
-      }
-    }
-    
-    // For non-selected options: still highlight the correct one, but without an icon.
-    if (isCorrect) {
-      return { classes: "bg-green-700", icon: null };
-    }
-    
-    // Other incorrect options are greyed out.
-    return { classes: "bg-slate-800 opacity-60", icon: null };
+    // Default state for options that haven't been tried yet.
+    return { classes: "bg-slate-700 hover:bg-cyan-800", icon: null };
   };
 
   return (
@@ -63,11 +61,13 @@ const Quiz: React.FC<QuizProps> = ({ quiz, onAnswer, disabled }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {quiz.options.map((option, index) => {
           const { classes, icon } = getButtonState(index);
+          const isButtonDisabled = disabled || incorrectGuesses.includes(index);
+
           return (
             <button
               key={index}
               onClick={() => handleOptionClick(index)}
-              disabled={disabled}
+              disabled={isButtonDisabled}
               className={`w-full p-4 rounded-md text-left transition-all duration-300 ease-in-out text-gray-200 disabled:cursor-not-allowed flex items-center justify-between ${classes}`}
               aria-pressed={selectedAnswer === index}
             >

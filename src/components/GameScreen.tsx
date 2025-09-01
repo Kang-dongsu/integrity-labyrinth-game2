@@ -22,12 +22,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ gameState, onNextRoom, onIncorr
   const isLastRoom = gameState.currentWing === WINGS.length - 1 && gameState.currentRoom === wing.rooms.length - 1;
 
   const handleAnswerSubmit = (isCorrectAnswer: boolean) => {
-    setIsAnswered(true);
-    setIsCorrect(isCorrectAnswer);
-    setFeedback(room.quiz.explanation);
-    if (!isCorrectAnswer) {
+    if (isCorrectAnswer) {
+      setIsAnswered(true);
+      setIsCorrect(true);
+      setFeedback(room.quiz.explanation);
+    } else {
       onIncorrectAnswer();
-      setHint(room.quiz.hint);
+      // 오답 시에는 퀴즈를 비활성화하지 않고 페널티만 부과합니다.
     }
   };
 
