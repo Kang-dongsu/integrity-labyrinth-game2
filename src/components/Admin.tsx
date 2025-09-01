@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { resetLeaderboard, getLeaderboard } from '../services/firebaseService';
+import { resetLeaderboard, getLeaderboard, db } from '../services/firebaseService';
 import { LeaderboardEntry } from '../types';
+import { ref, get } from 'firebase/database';
 
 interface AdminProps {
   onExit: () => void;

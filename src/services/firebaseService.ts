@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 let app;
-let db;
+export let db;
 
 // VITE_FIREBASE_API_KEY가 설정되었는지 확인하여 Firebase 초기화 여부 결정
 const isFirebaseConfigured = firebaseConfig.apiKey && 
