@@ -19,6 +19,7 @@ const Admin: React.FC<AdminProps> = ({ onExit }) => {
   const [message, setMessage] = useState('');
   const [allScores, setAllScores] = useState<LeaderboardEntry[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'scores' | 'participants'>('scores');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,78 +67,156 @@ const Admin: React.FC<AdminProps> = ({ onExit }) => {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="w-full max-w-md mx-auto bg-slate-800/50 p-8 rounded-lg shadow-2xl backdrop-blur-sm animate-fade-in">
-        <h2 className="text-2xl font-bold text-center text-cyan-300 mb-6 font-serif">관리자 로그인</h2>
-        <form onSubmit={handleLogin}>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호를 입력하세요"
-            className="w-full bg-slate-800 text-white placeholder-gray-500 border border-slate-700 rounded-lg p-3 mb-4 text-center focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
-            aria-label="Admin Password"
-          />
-          {error && <p className="text-red-400 text-center mb-4">{error}</p>}
-          <div className="flex gap-4">
-             <button type="button" onClick={onExit} className="w-full bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded-md transition-colors">
-              뒤로가기
-            </button>
-            <button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-md transition-colors">
-              로그인
-            </button>
-          </div>
-        </form>
-      </div>
-    );
-  }
+  const handleFetchAllParticipants = async () => {
+    setIsLoading(true);
+    setMessage('');
+    setError('');
+    setAllScores(null);
+    try {
+      // Fetch all entries from Firebase
+      const leaderboardRef = ref(db, 'leaderboard');
+      const snapshot = await get(leaderboardRef);
+      
+      if (snapshot.exists()) {
+        const data: LeaderboardEntry[] = [];
+        snapshot.forEach((childSnapshot) => {
+          const entry = childSnapshot.val();
+          data.push(entry);
+        });
+        
+        // Sort by timestamp to show all participants in chronological order
+        data.sort((a, b) => b.timestamp - a.timestamp);
+        
+        setAllScores(data);
+        if (data.length === 0) {
+          setMessage("현재 참가자 기록이 없습니다.");
+        }
+      } else {
+        setAllScores([]);
+        setMessage("현재 참가자 기록이 없습니다.");
+      }
+    } catch (err) {
+      console.error('Failed to fetch all participants', err);
+      setError('참가자 목록을 불러오는 데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatTimestamp = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-slate-800/50 p-8 rounded-lg shadow-2xl backdrop-blur-sm animate-fade-in text-center">
-      <h2 className="text-2xl font-bold text-cyan-300 mb-6 font-serif">관리자 페이지</h2>
+    <div className="text-center bg-slate-800/50 p-8 rounded-lg shadow-2xl backdrop-blur-sm animate-fade-in">
+      <h1 className="text-4xl font-bold text-cyan-300 mb-6 font-serif">관리자 패널</h1>
       
-      {message && <p className="text-green-400 text-center mb-4">{message}</p>}
-      {error && <p className="text-red-400 text-center mb-4">{error}</p>}
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <button onClick={handleFetchAllScores} disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-md transition-colors disabled:bg-slate-600">
-          {isLoading ? '로딩 중...' : '전체 순위표 보기'}
-        </button>
-        <button onClick={handleReset} className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-md transition-colors">
-          순위표 초기화
-        </button>
-      </div>
-
-      {allScores && (
-        <div className="mt-8 text-left">
-          <h3 className="text-xl font-bold text-cyan-300 mb-4">전체 순위표 ({allScores.length}명)</h3>
-          <div className="overflow-auto max-h-96 bg-slate-900/50 rounded-lg">
-            <table className="w-full min-w-full">
-              <thead>
-                <tr className="border-b border-slate-600 bg-slate-800 sticky top-0">
-                  <th className="p-3 text-lg text-gray-300">순위</th>
-                  <th className="p-3 text-lg text-gray-300">이름</th>
-                  <th className="p-3 text-lg text-gray-300 text-right">기록</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allScores.map((score, index) => (
-                  <tr key={index} className="border-b border-slate-700 last:border-b-0 hover:bg-slate-700/50">
-                    <td className="p-3 text-xl font-bold text-white">{index + 1}</td>
-                    <td className="p-3 text-lg text-white">{score.playerName}</td>
-                    <td className="p-3 text-lg font-mono text-cyan-300 text-right">{formatTime(score.escapeTime)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {!isAuthenticated ? (
+        <form onSubmit={handleLogin} className="max-w-md mx-auto">
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-gray-300 mb-2">비밀번호</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 rounded bg-slate-700 text-white"
+              required
+            />
           </div>
+          {error && <p className="text-red-400 mb-4">{error}</p>}
+          <button
+            type="submit"
+            className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-md transition-colors"
+          >
+            로그인
+          </button>
+        </form>
+      ) : (
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-cyan-300">관리자 기능</h2>
+            <button
+              onClick={onExit}
+              className="bg-slate-600 hover:bg-slate-500 text-white font-bold py-1 px-3 rounded-md transition-colors"
+            >
+              나가기
+            </button>
+          </div>
+          
+          <div className="flex gap-4 mb-6">
+            <button
+              onClick={handleFetchAllScores}
+              className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeTab === 'scores' ? 'bg-cyan-600' : 'bg-slate-600 hover:bg-slate-500'}`}
+            >
+              순위표 보기
+            </button>
+            <button
+              onClick={handleFetchAllParticipants}
+              className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeTab === 'participants' ? 'bg-cyan-600' : 'bg-slate-600 hover:bg-slate-500'}`}
+            >
+              참가자 목록 보기
+            </button>
+          </div>
+          
+          {isLoading ? (
+            <p className="text-center text-gray-300">로딩 중...</p>
+          ) : (
+            <>
+              {message && <p className="text-center text-gray-300 mb-4">{message}</p>}
+              
+              {allScores && (
+                <div className="mt-8 text-left">
+                  <h3 className="text-xl font-bold text-cyan-300 mb-4">
+                    {activeTab === 'scores' ? '전체 순위표' : '참가자 목록'} ({allScores.length}명)
+                  </h3>
+                  <div className="overflow-auto max-h-96 bg-slate-900/50 rounded-lg">
+                    <table className="w-full min-w-full">
+                      <thead>
+                        <tr className="border-b border-slate-600 bg-slate-800 sticky top-0">
+                          <th className="p-3 text-lg text-gray-300">순위</th>
+                          <th className="p-3 text-lg text-gray-300">이름</th>
+                          {activeTab === 'scores' && (
+                            <th className="p-3 text-lg text-gray-300 text-right">기록</th>
+                          )}
+                          <th className="p-3 text-lg text-gray-300">제출 시간</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allScores.map((score, index) => (
+                          <tr key={index} className="border-b border-slate-700 last:border-b-0 hover:bg-slate-700/50">
+                            <td className="p-3 text-xl font-bold text-white">{index + 1}</td>
+                            <td className="p-3 text-lg text-white">{score.playerName}</td>
+                            {activeTab === 'scores' && (
+                              <td className="p-3 text-lg font-mono text-cyan-300 text-right">{formatTime(score.escapeTime)}</td>
+                            )}
+                            <td className="p-3 text-sm text-gray-400">{formatTimestamp(score.timestamp)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+          
+          <button
+            onClick={handleReset}
+            className="w-full max-w-sm mx-auto mt-8 bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded-md transition-colors"
+          >
+            순위표 초기화
+          </button>
         </div>
       )}
-
-      <button onClick={onExit} className="w-full max-w-sm mx-auto mt-8 bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded-md transition-colors">
-        나가기
-      </button>
     </div>
   );
 };
