@@ -5,12 +5,12 @@ interface WelcomeScreenProps {
   onEnterAdminMode: () => void;
 }
 
+// 아이콘 SVG 자체는 부모 컨테이너를 채우도록 하고, 색상만 지정합니다.
 const LockIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 mx-auto text-cyan-400 mb-8">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-cyan-400">
         <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3A5.25 5.25 0 0 0 12 1.5ZM8.25 9.75V6.75a3.75 3.75 0 1 1 7.5 0v3H8.25Z" clipRule="evenodd" />
     </svg>
 );
-
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onEnterAdminMode }) => {
   const [playerName, setPlayerName] = useState('');
@@ -24,7 +24,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onEnterAdminMode
 
   return (
     <div className="relative text-center bg-slate-900/60 border border-slate-700 p-8 md:p-12 rounded-2xl shadow-2xl backdrop-blur-md animate-fade-in max-w-2xl mx-auto">
-      <LockIcon />
+      {/* 아이콘의 크기와 레이아웃을 제어하는 컨테이너 DIV */}
+      <div className="w-16 h-16 mx-auto mb-8">
+        <LockIcon />
+      </div>
       <h1 className="text-4xl md:text-5xl font-bold text-cyan-400 mb-2 font-serif">청렴의 미궁</h1>
       <h2 className="text-lg md:text-xl text-gray-400 mb-10 tracking-wider">The Labyrinth of Integrity</h2>
       
