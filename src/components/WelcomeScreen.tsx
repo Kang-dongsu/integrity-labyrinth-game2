@@ -47,6 +47,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onEnterAdminMode
       <form onSubmit={handleSubmit} className="flex flex-col items-center">
         <input
           type="text"
+          id="playerName" // Add id for accessibility and autofill
+          name="playerName" // Add name for autofill
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
           placeholder="당신의 이름을 입력하세요"
