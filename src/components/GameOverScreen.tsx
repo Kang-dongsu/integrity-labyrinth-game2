@@ -112,23 +112,3 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRestart })
 };
 
 export default GameOverScreen;
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="w-full max-w-sm bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-md transition-transform duration-200 transform hover:scale-105"
-        >
-          {isSubmitting ? '제출 중...' : '순위표에 기록 남기기'}
-        </button>
-        <button
-          onClick={onRestart}
-          className="w-full max-w-sm bg-slate-600 hover:bg-slate-500 text-white font-bold py-3 px-4 rounded-md transition-transform duration-200 transform hover:scale-105"
-        >
-          다시하기
-        </button>
-      </div>
-    </div>
-  );
-};
-
-export default GameOverScreen;
